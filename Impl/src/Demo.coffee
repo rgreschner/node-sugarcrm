@@ -1,3 +1,5 @@
+sugarcrm = require "node-sugarcrm"
+
 class DemoController
 	host:
 		"localhost"
@@ -35,7 +37,7 @@ class DemoController
 	run: ->
 		self = @
 		cbOnLogin = (sender, err) -> self.onLogin(sender, err)
-		client = new SugarCrmClient(@host,@servicePath,@username,@password);
+		client = new sugarcrm.SugarCrmClient(@host,@servicePath,@username,@password);
 		client.login(cbOnLogin)
 		return
 
