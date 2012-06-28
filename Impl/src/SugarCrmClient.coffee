@@ -14,12 +14,20 @@ isNullOrUndefined = (value) ->
 # Client for SugarCRM REST API.
 class SugarCrmClient
 
-	# Public ctor.
+
+
+	# Factory method
 	# host: Host to connect to.
 	# servicePath: Path to service on host.
 	# username: Username for login.
 	# password: Password for login.
-	constructor:(@host, @servicePath, @username, @password)	->
+	@create:(host, servicePath, username, password)	->
+		instance = new SugarCrmClient()
+		instance.host = host
+		instance.servicePath = servicePath
+		instance.username = username
+		instance.password = password
+		return instance
 
 	# Session Id issued from service.
 	sessionId:

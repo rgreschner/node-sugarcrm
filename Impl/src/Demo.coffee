@@ -37,7 +37,7 @@ class DemoController
 	run: ->
 		self = @
 		cbOnLogin = (sender, err) -> self.onLogin(sender, err)
-		client = new sugarcrm.SugarCrmClient(@host,@servicePath,@username,@password);
+		client = sugarcrm.createSugarCrmClient(@host,@servicePath,@username,@password);
 		client.login(cbOnLogin)
 		return
 

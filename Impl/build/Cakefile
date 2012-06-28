@@ -2,7 +2,7 @@ fs     = require 'fs'
 {exec} = require 'child_process'
 
 appFiles  = [
-  'SugarCrmClient','Exports'
+  'SugarCrmClient','ModuleExports'
 ]
 
 task 'build', 'Build single application file from source files', ->

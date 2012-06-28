@@ -61,7 +61,7 @@ DemoController = (function() {
       cbOnLogin = function(sender, err) {
         return self.onLogin(sender, err);
       };
-      client = new sugarcrm.SugarCrmClient(this.host, this.servicePath, this.username, this.password);
+      client = sugarcrm.createSugarCrmClient(this.host, this.servicePath, this.username, this.password);
       client.login(cbOnLogin);
     };
 
