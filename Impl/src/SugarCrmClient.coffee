@@ -1,7 +1,8 @@
 # Begin include section.
 
-crypto = require 'crypto'
-http = require 'http'
+crypto = require "crypto"
+http = require "http"
+https = require "https"
 
 # End include section.
 
@@ -14,19 +15,48 @@ isNullOrUndefined = (value) ->
 # Client for SugarCRM REST API.
 class SugarCrmClient
 
-
+	# Ctor.
+	# ctorParams: Parameters to create instance with.
+	constructor: (ctorParams) ->
+		
+		# Begin default parameters section.
+		
+		# Set HTTP as default protocol.
+		# TODO: Check if HTTPS is better default.
+		@protocol = "http"
+		
+		# End default parameters section.
+		
+		# Create with default parameters.
+		if null == ctorParams
+			return
+		
+		# Set parameters from ctorParams.
+		if !isNullOrUndefined ctorParams.protocol
+			@protocol = ctorParams.protocol
+		if !isNullOrUndefined ctorParams.host
+			@host = ctorParams.host
+		if !isNullOrUndefined ctorParams.servicePath
+			@servicePath = ctorParams.servicePath
+		if !isNullOrUndefined ctorParams.username
+			@username = ctorParams.username
+		if !isNullOrUndefined ctorParams.password
+			@password = ctorParams.password
 
 	# Factory method
 	# host: Host to connect to.
 	# servicePath: Path to service on host.
 	# username: Username for login.
 	# password: Password for login.
-	@create:(host, servicePath, username, password)	->
-		instance = new SugarCrmClient()
-		instance.host = host
-		instance.servicePath = servicePath
-		instance.username = username
-		instance.password = password
+	@createWithHostAndCredentials:(host, servicePath, username, password)	->
+		ctorParams =
+		{
+			host: host,
+			servicePath: servicePath,
+			username: username,
+			password: password
+		}
+		instance = new SugarCrmClient(ctorParams)
 		return instance
 
 	# Session Id issued from service.
@@ -54,9 +84,9 @@ class SugarCrmClient
 		options = {  
 			host: @host,   
 			path: @servicePath,
-			method: 'POST',
+			method: "POST",
 			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'	 
+				"Content-Type": "application/x-www-form-urlencoded"	 
 			}
 		}
 		return options
@@ -64,7 +94,11 @@ class SugarCrmClient
 	# Create HTTP request for RPC.
 	createRequestForRpc: ->
 		options = @createOptionsForRpcRequest()
-		request = http.request options
+		request = null
+		if "http" == @protocol
+			request = http.request options
+		if "https" == @protocol
+			request = https.request options
 		return request
 		
 	# Send HTTP request.
@@ -83,10 +117,10 @@ class SugarCrmClient
 		self = @
 		
 		# Handler for HTTP response.
-		req.on 'response', (response)->self.onSendRequestResponse(response, cbOnResult)
+		req.on "response", (response)->self.onSendRequestResponse(response, cbOnResult)
 		
 		# Register error handler.
-		req.on 'error', cbOnError
+		req.on "error", cbOnError
 		
 		req.end()
 		return
@@ -94,9 +128,9 @@ class SugarCrmClient
 	# Get hashed password for login.
 	getHashedPassword: ->
 		# Hash password using MD5.
-		hash = crypto.createHash('md5')
-		hash.update(@password);
-		hashedPassword = hash.digest('hex')
+		hash = crypto.createHash "md5"
+		hash.update @password
+		hashedPassword = hash.digest "hex"
 		return hashedPassword
 		
 	# Perform login.
@@ -126,7 +160,7 @@ class SugarCrmClient
 	# cbOnResult: Callback function(error, result) for result.
 	onSendRequestResponse: (response, cbOnResult) ->
 		self = @
-		response.on 'data', (data)->self.onSendRequestReceiveChunk(data, cbOnResult)
+		response.on "data", (data)->self.onSendRequestReceiveChunk data, cbOnResult
 		return
 		
 	# Handler for GetWithRelated.
@@ -140,7 +174,7 @@ class SugarCrmClient
 			return
 		for entry in result.entry_list
 			record = []
-			for field in entry['name_value_list']
+			for field in entry["name_value_list"]
 				record[field.name] = field.value
 				records.push record
 		self = @
@@ -198,8 +232,8 @@ class SugarCrmClient
 		for relatedModule of fields
 			fieldsList = fields[relatedModule]
 			tmpArr = []
-			tmpArr['name'] = relatedModule
-			tmpArr['value'] = fieldsList
+			tmpArr["name"] = relatedModule
+			tmpArr["value"] = fieldsList
 			relationships = relationships.concat tmpArr
 		
 
@@ -289,7 +323,7 @@ class SugarCrmClient
 	# cbOnResult: Callback function(error, result) for result.
 	onSendRequestResponse: (response, cbOnResult) ->
 		self = @
-		response.on 'data', (data)->self.onSendRequestReceiveChunk(data, cbOnResult)
+		response.on "data", (data)->self.onSendRequestReceiveChunk data, cbOnResult
 		return
 		
 		
